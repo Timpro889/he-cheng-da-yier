@@ -1,0 +1,4 @@
+.vercel
+/cocos-creator
+node_modules
+dist
