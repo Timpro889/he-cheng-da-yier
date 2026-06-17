@@ -358,9 +358,9 @@ const GameBoard: React.FC = () => {
   }, [resetGame, handleMerge]);
 
   return (
-    <div className="flex flex-col items-center w-full max-w-md mx-auto h-screen bg-gradient-to-b from-blue-50 to-pink-50">
+    <div className="flex flex-col items-center w-full max-w-md mx-auto min-h-screen bg-gradient-to-b from-blue-50 to-pink-50">
       {/* Header */}
-      <div className="w-full flex justify-between items-center p-4 bg-white/80 backdrop-blur-sm shadow-sm">
+      <div className="w-full flex justify-between items-center p-3 bg-white/80 backdrop-blur-sm shadow-sm shrink-0">
         <div className="text-center">
           <div className="text-xs text-gray-500">当前分数</div>
           <div className="text-xl font-bold text-pink-600">{score}</div>
@@ -371,8 +371,8 @@ const GameBoard: React.FC = () => {
         </div>
       </div>
 
-      {/* Game Area */}
-      <div className="flex-1 w-full p-2 flex items-center justify-center">
+      {/* Game Area - 自适应高度 */}
+      <div className="flex-1 w-full p-2 flex items-center justify-center min-h-0">
         <div
           ref={gameAreaRef}
           className="relative overflow-hidden cursor-crosshair"
@@ -421,15 +421,15 @@ const GameBoard: React.FC = () => {
       </div>
 
       {/* Footer */}
-      <div className="w-full p-4 bg-white/80 backdrop-blur-sm">
+      <div className="w-full p-3 bg-white/80 backdrop-blur-sm shrink-0">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <div className="text-sm text-gray-500">下一个:</div>
-            <div className="w-12 h-12 flex items-center justify-center">
+            <div className="w-10 h-10 flex items-center justify-center">
               <img
                 src={nextConfig.image}
                 alt={nextConfig.name}
-                style={{ width: nextConfig.size * 0.65, height: nextConfig.size * 0.65, objectFit: 'contain' }}
+                style={{ width: nextConfig.size * 0.6, height: nextConfig.size * 0.6, objectFit: 'contain' }}
                 draggable={false}
               />
             </div>
@@ -444,8 +444,8 @@ const GameBoard: React.FC = () => {
           </button>
         </div>
 
-        <div className="mt-3 text-center text-xs text-gray-400">
-          {isDropping ? '投放中...' : '移动鼠标选择位置，点击投放'}
+        <div className="mt-2 text-center text-xs text-gray-400">
+          {isDropping ? '投放中...' : '移动选择位置，点击投放'}
         </div>
       </div>
     </div>
