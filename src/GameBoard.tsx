@@ -4,6 +4,7 @@ import Matter from 'matter-js';
 import { CharacterType, Level, getConfig, GAME_WIDTH, GAME_HEIGHT, RED_LINE_Y, WIN_LEVEL } from './types';
 import { PhysicsCharacter, useGameStore } from './store';
 import { PhysicsEngine } from './physics';
+import { playDropSound, playMergeYierSound, playMergeBibuSound, playWinSound, playGameOverSound } from './sounds';
 
 const { Body } = Matter;
 
@@ -197,6 +198,7 @@ const GameBoard: React.FC = () => {
         ((c1.type === 'yier' && c2.type === 'bibu') || (c1.type === 'bibu' && c2.type === 'yier'))) {
       engine.removeCharacters([c1.id, c2.id]);
       addMergeEffect(mergeX, mergeY);
+      playWinSound();
       setTimeout(() => setGameWon(), 300);
       return;
     }
@@ -208,6 +210,13 @@ const GameBoard: React.FC = () => {
 
       engine.removeCharacters([c1.id, c2.id]);
       engine.addCharacter(c1.type, newLevel, mergeX, mergeY);
+
+      // Play merge sound based on character type
+      if (c1.type === 'yier') {
+        playMergeYierSound();
+      } else {
+        playMergeBibuSound();
+      }
 
       // Update score
       const currentState = useGameStore.getState();
@@ -272,6 +281,7 @@ const GameBoard: React.FC = () => {
           aboveSince = now;
         }
         if (now - aboveSince >= ABOVE_THRESHOLD) {
+          playGameOverSound();
           setGameOver();
           return;
         }
@@ -313,6 +323,7 @@ const GameBoard: React.FC = () => {
       const clampedX = Math.max(nextConfig.radius, Math.min(GAME_WIDTH - nextConfig.radius, x));
 
       setIsDropping(true);
+      playDropSound();
 
       if (physicsRef.current) {
         const { char } = physicsRef.current.addCharacter(
