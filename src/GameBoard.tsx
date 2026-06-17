@@ -261,14 +261,19 @@ const GameBoard: React.FC = () => {
 
   // Check game over — when the character stack reaches the red line
   useEffect(() => {
-    if (!physicsRef.current || gameOver || gameWon) return;
+    if (!physicsRef.current) return;
 
     const ABOVE_THRESHOLD = 500; // ms the stack must stay at/below red line to trigger game over
-
     let aboveSince: number | null = null;
+    let isActive = true;
 
     const checkInterval = setInterval(() => {
-      if (!physicsRef.current || gameOver || gameWon) return;
+      if (!isActive) return;
+      if (!physicsRef.current) return;
+
+      // Check if game is already over or won
+      const state = useGameStore.getState();
+      if (state.gameOver || state.gameWon) return;
 
       const stackTopY = physicsRef.current.getStackTopY();
       if (stackTopY === Infinity) return; // no characters yet
@@ -291,8 +296,11 @@ const GameBoard: React.FC = () => {
       }
     }, 200);
 
-    return () => clearInterval(checkInterval);
-  }, [gameOver, gameWon, setGameOver]);
+    return () => {
+      isActive = false;
+      clearInterval(checkInterval);
+    };
+  }, []);
 
   // Mouse/touch move handler
   const handlePointerMove = useCallback(
@@ -344,6 +352,7 @@ const GameBoard: React.FC = () => {
 
   // Reset game
   const handleReset = useCallback(() => {
+    // Destroy old engine first
     if (physicsRef.current) {
       physicsRef.current.destroy();
       physicsRef.current = null;
