@@ -4,7 +4,7 @@ import Matter from 'matter-js';
 import { CharacterType, Level, getConfig, GAME_WIDTH, GAME_HEIGHT, RED_LINE_Y, WIN_LEVEL } from './types';
 import { PhysicsCharacter, useGameStore } from './store';
 import { PhysicsEngine } from './physics';
-import { playDropSound, playMergeYierSound, playMergeBibuSound, playWinSound, playGameOverSound } from './sounds';
+import { playDropSound, playMergeYierSound, playMergeBibuSound, playWinSound, playGameOverSound, preloadSounds, unlockAudio, isMuted, toggleMuted, subscribeMuted } from './sounds';
 
 const { Body } = Matter;
 
@@ -146,6 +146,13 @@ const GameBoard: React.FC = () => {
   const physicsRef = useRef<PhysicsEngine | null>(null);
   const isInitializedRef = useRef(false);
   const [mergeEffects, setMergeEffects] = React.useState<{ id: string; x: number; y: number }[]>([]);
+  const [muted, setMutedState] = React.useState<boolean>(() => isMuted());
+
+  // 预加载音效资源 + 绑定首次手势解锁（音频必须在用户交互后才能播放）
+  useEffect(() => {
+    preloadSounds();
+    return subscribeMuted(setMutedState);
+  }, []);
 
   // Store selectors
   const characters = useGameStore(s => s.characters);
@@ -331,6 +338,7 @@ const GameBoard: React.FC = () => {
       const clampedX = Math.max(nextConfig.radius, Math.min(GAME_WIDTH - nextConfig.radius, x));
 
       setIsDropping(true);
+      unlockAudio();
       playDropSound();
 
       if (physicsRef.current) {
@@ -389,6 +397,13 @@ const GameBoard: React.FC = () => {
           <div className="text-xs text-gray-500">最高纪录</div>
           <div className="text-xl font-bold text-blue-600">{highScore}</div>
         </div>
+        <button
+          onClick={() => setMutedState(toggleMuted())}
+          aria-label={muted ? '开启音效' : '关闭音效'}
+          className="ml-2 w-9 h-9 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 active:scale-95 transition-transform text-lg select-none"
+        >
+          {muted ? '🔇' : '🔊'}
+        </button>
       </div>
 
       {/* Game Area - 自适应高度 */}
